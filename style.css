@@ -181,6 +181,10 @@ main {
 	transition: transform 0.5s ease-in;
 }
 
+.movie-overview{
+	margin: 0;
+}
+
 .movie:hover .overview {
 	transform: translateY(0);
 }
@@ -401,15 +405,70 @@ main {
 	text-align: center;
   }
   
-  .submit-rating {
-	padding: 4px 10px;
-	font-size: 14px;
+  .your-rate{
 	font-weight: bold;
-	cursor: pointer;
-	background-color: var(--primary-color);
-	color: white;
-	border: none;
-	border-radius: 50px;
-	margin-top: 2px;
-	margin-left: 41px;
   }
+
+  .actors-card {
+	position: fixed;
+	top: 25%;
+	left: 45%;
+	width: 330px;
+	background-color: var(--primary-color);
+	padding: 15px;
+	border-radius: 10px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.979);
+	display: none;
+  }
+  
+  .actors-card h4 {
+	font-size: 20px;
+	font-weight: bold;
+	margin-top: 0;
+  }
+  
+  .actor-item {
+	display: flex;
+	align-items: center;
+	margin-bottom: 10px;
+  }
+  
+  .actor-item img {
+	border-radius: 50%;
+	width: 50px;
+	height: 50px;
+	margin-right: 10px;
+  }
+  
+  .actors-card .close-actors {
+	position: absolute;
+	top: 15px;
+	right: 20px;
+	cursor: pointer;
+	font-size: 25px;
+  }
+
+  .show-actors{
+	font-size: 13px;
+	font-weight: bold;
+	border: 0;
+	border-radius: 50px;
+	padding: 5px 10px;
+	margin-left: 5px;
+	cursor: pointer;
+	background-color: #222550;
+	color: white;
+  }
+  
+  .actors-div{
+	border-radius: 10px;
+	width: 300px;
+	background-color: var(--secondary-color);
+	padding: 10px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.473);
+  }
+
+  .actor-name{
+	font-size: 20px;
+  }
+

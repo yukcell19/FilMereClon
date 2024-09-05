@@ -1,7 +1,7 @@
 // TMDB Movie API
 const API_KEY = "api_key=ccc02c6859a478a36dd9740b6835eb1b"; // API Key
 const BASE_URL = "https://api.themoviedb.org/3";
-let sort_by = "popularity.desc"
+let sort_by = "popularity.desc";
 let API_URL = `${BASE_URL}/discover/movie?sort_by=${sort_by}&${API_KEY}`;
 const IMAGE_URL = "https://image.tmdb.org/t/p/w500";
 const SEARCH_URL = `${BASE_URL}/search/movie?${API_KEY}`;
@@ -34,20 +34,23 @@ function displayMovies(movies) {
                <span class="${movieRateColor(movie.vote_average)}">${movie.vote_average}</span>   
              </div>
              <div class="overview">
-                <h3>Overview</h3>
-                ${movie.overview}
+                <h3>Overview
+                <button class="show-actors" data-id="${movie.id}">Show Actors</button></h3>
+                <p class="movie-overview">${movie.overview}</p>
                 <br/> 
                 <button class="know-more" id="${movie.id}">Know More</button>
                 <div class="rating-container">
                   <span class="rate-span">Rate:<input type="number" class="rating-input" min="1" max="10" placeholder="1-10" /></span>
-                  <button class="submit-rating">Submit</button>
                 </div>
               </div>`;
+
     const movieimg = movieItem.querySelector("img");
     if (movieimg.src == "https://image.tmdb.org/t/p/w500null") {
       movieimg.src = "img/image_nf.jpg";
     }
     main.appendChild(movieItem);
+
+    //---
 
     const knowMoreButton = movieItem.querySelector(".know-more");
     const kmContainer = document.getElementById("km-container");
@@ -67,18 +70,41 @@ function displayMovies(movies) {
       kmContainer.style.width = "0";
     });
 
-    const ratingInput = movieItem.querySelector(".rating-input");
-    const submitRatingButton = movieItem.querySelector(".submit-rating");
+    //---
 
-    submitRatingButton.addEventListener("click", () => {
-      const rating = ratingInput.value;
-      if (rating >= 1 && rating <= 10) {
-        alert(`You rated this movie --> ${rating}`);
-        ratingInput.value = "";
-      } else {
-        alert("Please enter a rating between 1 and 10");
+    const ratingInput = movieItem.querySelector(".rating-input");
+    const ratingContainer = movieItem.querySelector(".rating-container");
+    const yourRateSpan = document.createElement("span");
+
+    const savedRating = localStorage.getItem(`${movie.title}`);
+    if (savedRating) {
+      yourRateSpan.innerHTML = `
+      <span class="your-rate">Your Rate: ${savedRating}</span>`;
+      ratingContainer.appendChild(yourRateSpan);
+    }
+
+    ratingInput.addEventListener("keyup", (e) => {
+      if (e.key == "Enter") {
+        const rating = ratingInput.value;
+        if (rating >= 1 && rating <= 10) {
+          localStorage.setItem(`${movie.title}`, rating);
+          yourRateSpan.innerHTML = `
+          <span class="your-rate">Your Rate: ${rating}</span>`;
+          ratingContainer.appendChild(yourRateSpan);
+          ratingInput.value = "";
+        } else {
+          alert("Please enter a rating between 1 and 10");
+        }
       }
     });
+
+    //---
+
+      const showActors = movieItem.querySelector(".show-actors")
+      showActors.addEventListener("click", () => {
+          const movieId = showActors.getAttribute("data-id");
+          showActorsCard(movieId);
+      });
   });
 }
 
@@ -308,7 +334,7 @@ function getTopMovies(page = 1) {
     .then((data) => {
       main.innerHTML = "";
       displayMovies(data.results);
-      pageActions(data.total_pages)
+      pageActions(data.total_pages);
     });
 }
 
@@ -328,7 +354,7 @@ function getUpcomingMovies(page = 1) {
     .then((data) => {
       main.innerHTML = "";
       displayMovies(data.results);
-      pageActions(data.total_pages)
+      pageActions(data.total_pages);
     });
 }
 
@@ -337,7 +363,7 @@ const mostVotedButton = document.getElementById("most-voted");
 
 mostVotedButton.addEventListener("click", () => {
   necessaryActions();
-  sort_by = "vote_count.desc"; 
+  sort_by = "vote_count.desc";
   getMostVotedMovies(currentPage);
 });
 
@@ -348,13 +374,12 @@ function getMostVotedMovies(page = 1) {
     .then((data) => {
       main.innerHTML = "";
       displayMovies(data.results);
-      pageActions(data.total_pages)
+      pageActions(data.total_pages);
     });
 }
 
-
 // tekrarlayan işlemler
-function necessaryActions(){
+function necessaryActions() {
   currentPage = 1;
   currentButton.innerHTML = currentPage;
   prevButton.classList.remove("enabled");
@@ -364,7 +389,7 @@ function necessaryActions(){
   categorySection.style.display = "none";
 }
 
-function pageActions(totalPage){
+function pageActions(totalPage) {
   if (totalPage > 1) {
     nextButton.classList.remove("disabled");
     nextButton.classList.add("enabled");
@@ -373,3 +398,42 @@ function pageActions(totalPage){
     nextButton.classList.add("disabled");
   }
 }
+
+
+// filmin popüler aktörlerini gösterme işlemleri
+const actorsCard = document.createElement("div");
+actorsCard.classList.add("actors-card");
+document.body.appendChild(actorsCard);
+
+function showActorsCard(movieId) {
+  fetch(`${BASE_URL}/movie/${movieId}/credits?${API_KEY}`)
+    .then((response) => response.json())
+    .then((data) => {
+      const actors = data.cast.slice(0, 5);
+      let actorsHtml = "";
+      actors.forEach((actor) => {
+        actorsHtml += `
+          <div class="actor-item">
+            <img src="${IMAGE_URL + actor.profile_path}">
+            <span class="actor-name">${actor.name}</span>
+          </div>
+        `;
+      });
+      
+      actorsCard.innerHTML = `
+      <div class= "actors-div">
+        <span class="close-actors">&times;</span>
+        <h4>Popular Actors</h4>
+        ${actorsHtml}
+      </div>
+      `;
+
+      actorsCard.style.display = "block";
+
+      const closeActors = actorsCard.querySelector(".close-actors");
+      closeActors.addEventListener("click", () => {
+        actorsCard.style.display = "none";
+      });
+    });
+}
+
